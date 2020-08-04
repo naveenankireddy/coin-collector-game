@@ -1,3 +1,5 @@
+import { lavender } from "color-name";
+
 let simpleLevelPlan = `
 ......................
 ..#................#..
@@ -62,7 +64,7 @@ class Vec {
 }
 
 
-//player
+//creating player
 class Player{
     constructor(pos,speed){
         this.pos = pos;
@@ -79,3 +81,44 @@ class Player{
 
 }
 Player.prototype.size = new Vec(0.8, 1.5);
+
+// creating lava 
+
+class Lava{
+    constructor(pos,speed,reset){
+        this.pos = pos;
+        this.speed = speed;
+        this.reset = reset;
+    }
+    get type(){
+        return 'lava'
+    }
+    static create(pos,ch){
+        if(ch == "="){
+            return new Lava(pos,new Vec(2,0));
+        }else if(ch == '|'){
+            return new Lava(pos,new Vec(0,3))
+        }else if(ch == 'v'){
+            return new lavender(pos,new Vec(0,3),pos)
+        }
+    }
+}
+
+Lava.prototype.size= new Vec(1,1);
+
+//creating coin 
+class Coin{
+    constructor(pos,basepos,wobble){
+        this.pos = pos;
+        this.basePos = basepos;
+        this.wobble= wobble;
+    }
+    get type(){
+        return 'coin'
+    }
+    static create(pos){
+        let basePos = pos.plus(new Vec(0.2,0.1))
+        return new Coin(basePos,basePos,Math.random()*Math.PI*2)
+    }
+}
+Coin.prototype.size = new Vec(0.6,0.6)
