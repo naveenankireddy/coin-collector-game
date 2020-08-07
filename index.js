@@ -245,18 +245,39 @@ console.log("jyfduytcgt");
 
 //motion and collision
 
-Level.prototype.touches = function(pos,size,type){
-  let xStart = Math.floor(pos.x);
-  let xEnd = Math.ceil(pos.x+size.x);
-  let yStart = Math.floor(pos.y);
-  let yEnd = Math.ceil(pos.y+size.y)
+Level.prototype.touches = function(pos, size, type) {
+  var xStart = Math.floor(pos.x);
+  var xEnd = Math.ceil(pos.x + size.x);
+  var yStart = Math.floor(pos.y);
+  var yEnd = Math.ceil(pos.y + size.y);
 
-  for(let y=yStart;y<yEnd;y++){
-    for(let x = xStart;x<xEnd;x++){
-      let isOutside = x<0||x>=this.width||y<0||y>=this.height;
-      let here = isOutside ? 'wall':this.rows[y][x];
-      if(here == type) return type
+  for (var y = yStart; y < yEnd; y++) {
+    for (var x = xStart; x < xEnd; x++) {
+      let isOutside = x < 0 || x >= this.width ||
+                      y < 0 || y >= this.height;
+      let here = isOutside ? "wall" : this.rows[y][x];
+      if (here == type) return true;
     }
   }
   return false;
+};
+
+//the state update method uses the touches and checks whether the player touches lava
+
+State.prototype.update = function(time,keys){
+  let actors = this.actors.map(actor => actor.update(time,this,keys));
+  let newState = new State(this.level,actors,this.status);
+  if(newState.status != 'playing') {
+    return newState
+  }
+  let player = newState.player;
+  if(this.level.touches(player.pos,player.size,'lava')){
+    return new State(this.level,actors,'lost')
+  }
+  for(let actor of actors){
+    if(actor != player && overlap(actor,player)){
+      newState = actor.collide(newState)
+    }
+  }
+  return newState;
 }
